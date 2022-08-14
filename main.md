@@ -1,6 +1,5 @@
-How to write how to\`s
+WeatherCan package demo
 ================
-Gemenciano Clancleta
 2022-08-14
 
 ``` r
