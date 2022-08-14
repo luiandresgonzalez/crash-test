@@ -5,26 +5,49 @@ date: "2022-08-14"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+library(viridis)
+library(ggExtra)
+library(ggplot2)
+library(tidyverse)
+library(weathercan)
 ```
 
-## R Markdown
+# Run first
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+stations_dl()
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Look by station name. Return only stations that update hourly
+```{r}
+stations_search("BEAUPORT", interval = "hour")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Stations within a 40 km radios from a lat/long
+```{r}
+stations_search(coords = c(46.759312, -70.974861), dist = 40, interval = "hour")
+```
+
+# Download data from a specific station by id (this is U. Laval station)
+```{r}
+w <- weather_dl(station_ids = 27377,
+                start = "2021-04-27", end = "2021-07-15")
+```
+
+
+# Basic plot
+```{r}
+ggplot(data = w, aes(x = time, y = temp)) + geom_line()
+```
+
+# Plot a "heatmap" kind of chart. removeGrid() doesnt seem to be working
+```{r}
+
+(p <- ggplot(w,aes(date,hour,fill=temp)) +
+  geom_tile(color="white", size=0.1) + 
+  scale_x_date(date_breaks = "2 weeks") +
+  scale_fill_viridis(name="Hrly Temps C",option ="C") + removeGrid(y = T)) 
+```
+
