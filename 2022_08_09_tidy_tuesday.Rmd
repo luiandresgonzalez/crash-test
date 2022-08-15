@@ -1,0 +1,131 @@
+---
+title: "TidyTemplate"
+date: 2022-08-14
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+# TidyTuesday
+
+Join the R4DS Online Learning Community in the weekly #TidyTuesday event!
+Every week we post a raw dataset, a chart or article related to that dataset, and ask you to explore the data.
+While the dataset will be “tamed”, it will not always be tidy! As such you might need to apply various R for Data Science techniques to wrangle the data into a true tidy format.
+The goal of TidyTuesday is to apply your R skills, get feedback, explore other’s work, and connect with the greater #RStats community!
+As such we encourage everyone of all skills to participate!
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+theme_set(theme_light())
+```
+
+# Load the weekly Data
+
+Download the weekly data and make available in the `tt` object.
+
+```{r Load}
+
+tt <- tt_load(2021, week = 19)
+
+water <- tt$water
+
+```
+
+
+# Readme
+
+Take a look at the readme for the weekly data to get insight on the dataset.
+This includes a data dictionary, source, and a link to an article on the data.
+
+```{r Readme, eval = interactive()}
+
+tt
+
+```
+
+
+# Glimpse Data
+
+Take an initial look at the format of the data available.
+
+```{r Glimpse}
+
+tt %>% 
+  map(glimpse)
+
+```
+
+# Wrangle
+
+Explore the data and process it into a nice format for plotting! Access each dataset by name by using a dollarsign after the `tt` object and then the name of the data set.
+
+```{r Wrangle}
+library(lubridate)
+
+water <- tt$water %>% 
+  mutate(report_date = mdy(report_date)) %>% 
+  rename(lat = lat_deg,
+         lon = lon_deg,
+         country = country_name) %>% 
+  separate(water_tech, c("water_tech", "brand"), 
+           sep = " - ",
+           fill = "right") %>% 
+  mutate(install_year = ifelse(install_year > 2021, NA_real_,install_year)) %>% 
+  filter(!country %in% c("Peru"))
+
+water
+```
+
+```{r}
+water %>% count(status_id)
+
+water %>% count(water_source, sort = T)
+
+## Counts two columns combinations
+
+water %>% count(water_source, water_tech, sort = T)
+water %>% count(water_tech, brand, sort = T)
+
+water %>% 
+  count(install_year) %>% 
+  filter(install_year > 1980) %>% 
+  ggplot(aes(install_year,n)) + geom_col()
+
+```
+
+```{r}
+water %>% 
+  count(country_name, sort = T) %>% 
+  filter(!country_name %in% c("Peru")) view()
+
+water %>% 
+  count(installer, sort = T) %>% view()
+```
+
+# Visualize
+
+Using your processed dataset, create your unique visualization.
+
+```{r Visualize}
+
+
+  
+```
+
+# Save Image
+
+Save your image for sharing. Be sure to use the `#TidyTuesday` hashtag in your post on twitter! 
+
+```{r}
+
+# This will save your most recent plot
+ggsave(
+  filename = "My TidyTuesday Plot.png",
+  device = "png")
+
+```
